@@ -6,6 +6,7 @@
   "scripts": {
     "start": "python -m http.server 5173",
     "ai": "python ai_server.py",
-    "test": "node scripts/smoke-test.mjs"
+    "test": "node scripts/smoke-test.mjs",
+    "benchmark": "node scripts/benchmark-10000.mjs"
   }
 }

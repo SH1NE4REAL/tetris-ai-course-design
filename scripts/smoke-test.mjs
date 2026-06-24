@@ -14,7 +14,10 @@ for (let i = 0; i < 5; i += 1) {
     game.applyMoveTarget(move);
     steps += 1;
   }
-  results.push({ seed: game.seed, lines: game.lines, score: game.score, pieces: game.pieces });
+  if (game.score !== game.lines) {
+    throw new Error(`Score rule failed: score=${game.score}, lines=${game.lines}`);
+  }
+  results.push({ seed: game.seed, score: game.score, lines: game.lines, pieces: game.pieces });
 }
 
 console.table(results);

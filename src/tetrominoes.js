@@ -1,5 +1,5 @@
 export const BOARD_WIDTH = 10;
-export const BOARD_HEIGHT = 20;
+export const BOARD_HEIGHT = 10;
 export const PIECE_TYPES = ["I", "J", "L", "O", "S", "T", "Z"];
 
 export const COLORS = {

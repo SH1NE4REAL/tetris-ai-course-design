@@ -261,8 +261,8 @@ input[type="range"] {
 
 #boardCanvas {
   width: min(58vh, 100%);
-  max-width: 430px;
-  aspect-ratio: 1 / 2;
+  max-width: 520px;
+  aspect-ratio: 1 / 1;
   border-radius: 8px;
   box-shadow:
     0 24px 48px rgba(0, 0, 0, 0.34),
@@ -270,7 +270,7 @@ input[type="range"] {
 }
 
 .stage-footer {
-  width: min(430px, 100%);
+  width: min(520px, 100%);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;

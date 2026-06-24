@@ -1,7 +1,6 @@
 import { BOARD_HEIGHT, BOARD_WIDTH, PIECE_TYPES, SHAPES } from "./tetrominoes.js";
 import { SeededRandom } from "./rng.js";
 
-const LINE_SCORES = [0, 100, 300, 500, 800];
 const KICKS = [
   [0, 0],
   [-1, 0],
@@ -115,8 +114,8 @@ export class TetrisGame {
   }
 
   refillQueue() {
-    while (this.queue.length < 7) {
-      this.queue.push(...this.rng.shuffle(PIECE_TYPES));
+    while (this.queue.length < 5) {
+      this.queue.push(PIECE_TYPES[this.rng.int(PIECE_TYPES.length)]);
     }
   }
 
@@ -183,7 +182,6 @@ export class TetrisGame {
 
   softDrop(addScore = true) {
     const moved = this.move(0, 1);
-    if (moved && addScore) this.score += 1;
     return moved;
   }
 
@@ -193,7 +191,6 @@ export class TetrisGame {
     if (y == null) return 0;
     const distance = Math.max(0, y - this.current.y);
     this.current = { ...this.current, y };
-    this.score += distance * 2;
     this.lockPiece();
     return distance;
   }
@@ -230,7 +227,7 @@ export class TetrisGame {
     if (result.lines > 0) {
       this.lines += result.lines;
       this.level = Math.floor(this.lines / 10) + 1;
-      this.score += LINE_SCORES[result.lines] * this.level;
+      this.score += result.lines;
     }
     if (result.topOut) {
       this.status = "gameover";

@@ -35,7 +35,7 @@ const elements = {
   restartOverlayBtn: document.querySelector("#restartOverlayBtn"),
 };
 
-const boardCtx = setupCanvas(elements.boardCanvas, 360, 720);
+const boardCtx = setupCanvas(elements.boardCanvas, 420, 420);
 const nextCtx = setupCanvas(elements.nextCanvas, 240, 190);
 const ai = new TetrisAI();
 const wsClient = new AiSocketClient();
@@ -290,7 +290,7 @@ async function runBenchmark() {
   elements.modeSelect.disabled = true;
   elements.depthSelect.disabled = true;
   elements.benchGames.disabled = true;
-  const games = Math.max(1, Math.min(200, Number(elements.benchGames.value) || 200));
+  const games = Math.max(1, Math.min(10000, Number(elements.benchGames.value) || 10000));
   const depth = Number(elements.depthSelect.value);
   const seed = elements.seedInput.value.trim() || "benchmark";
   const results = [];
@@ -319,7 +319,7 @@ async function playAiGameAsync(seed, depth) {
   const sim = new TetrisGame({ seed });
   sim.start();
   let guard = 0;
-  const maxPieces = 3000;
+  const maxPieces = 20000;
   let stopped = false;
   while (sim.status === "running" && guard < maxPieces && !benchmarkCancel) {
     for (let batch = 0; batch < 120 && sim.status === "running" && guard < maxPieces && !stopped && !benchmarkCancel; batch += 1) {
@@ -350,27 +350,24 @@ function summarizeBenchmark(results, final, canceled = false) {
   if (results.length === 0) {
     return canceled ? "评测已停止：尚未完成任何完整局。" : "评测准备中。";
   }
-  const lines = results.map((result) => result.lines);
   const scores = results.map((result) => result.score);
+  const lines = results.map((result) => result.lines);
   const pieces = results.map((result) => result.pieces);
-  const avgLines = average(lines);
   const avgScore = average(scores);
+  const scoreVariance = variance(scores);
+  const avgLines = average(lines);
   const avgPieces = average(pieces);
-  const sd = stddev(lines);
-  const max = Math.max(...lines);
-  const min = Math.min(...lines);
-  const targetHits = results.filter((result) => result.lines >= 1000).length;
+  const max = Math.max(...scores);
+  const min = Math.min(...scores);
   const capped = results.filter((result) => result.capped).length;
-  const pass = avgLines >= 1000 ? "达到课题目标" : "未达到 1000 行目标，可继续调权重";
   return [
     `${canceled ? "评测已停止" : final ? "评测完成" : "评测中"}：${lines.length} 局完整结果`,
-    `平均消行：${avgLines.toFixed(2)}    标准差：${sd.toFixed(2)}`,
-    `最高消行：${max}    最低消行：${min}`,
-    `平均得分：${avgScore.toFixed(0)}    平均方块数：${avgPieces.toFixed(0)}`,
-    `达到 1000 行局数：${targetHits}/${lines.length}    预算结束：${capped}/${lines.length}`,
-    `评测预算：每局最多 3000 个方块，预算结束表示 AI 仍未死亡`,
-    `说明：评测使用与 WebSocket AI 相同评估函数的本地快速仿真，WebSocket 用于演示 JSON 接口落子`,
-    `结论：${pass}`,
+    `分数均值：${avgScore.toFixed(4)}    分数方差：${scoreVariance.toFixed(4)}`,
+    `最高分：${max}    最低分：${min}`,
+    `平均消行：${avgLines.toFixed(4)}    平均方块数：${avgPieces.toFixed(2)}`,
+    `预算结束：${capped}/${lines.length}`,
+    `规则：10×10 布局，7 种方块独立等概率刷新，消除 1 行得 1 分`,
+    `说明：评测是独立批量仿真实验；WebSocket 用于演示 JSON 接口落子`,
   ].join("\n");
 }
 
@@ -384,6 +381,12 @@ function stddev(values) {
   const avg = average(values);
   const variance = average(values.map((value) => (value - avg) ** 2));
   return Math.sqrt(variance);
+}
+
+function variance(values) {
+  if (values.length === 0) return 0;
+  const avg = average(values);
+  return average(values.map((value) => (value - avg) ** 2));
 }
 
 function fmt(value) {
